@@ -18,16 +18,16 @@ foreach ($OU in $OUs) {
 }
 
 $Groups = @(
-    "HR-Users"
-    "IT-Admins"
-    "Finance-Analysts"
-    "Sales-Team"
-    "Training-Security"
+    @{ Name = "HR-Users"; OU = "HumanResources" }
+    @{ Name = "IT-Admins"; OU = "IT" }
+    @{ Name = "Finance-Analysts"; OU = "Finance" }
+    @{ Name = "Sales-Team"; OU = "Sales" }
+    @{ Name = "Training-Security"; OU = "Training" }
 )
-$GroupPath = $OU,$DomainDN
 
 foreach ($Group in $Groups) {
     $ExistingGroup = Get-ADGroup -Filter "Name -eq $Group"
+    $GroupPath = "OU=$($Group.OU),$DomainDN"
         if ($ExistingGroup -eq $null) {
             New-ADGroup -Name $Group -GroupScope Global -GroupCategory Security -Path $GroupPath
             Write-Host "New Global Security Group has been created with the name: $Group"
@@ -35,4 +35,3 @@ foreach ($Group in $Groups) {
             Write-Host "The Group already exists: $Group"
         }
 }
-
