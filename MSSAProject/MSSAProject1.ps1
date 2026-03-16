@@ -1,3 +1,4 @@
+#Create New Organizational Units
 $DomainDN = "DC=Adatum,DC=com"
 $OUs = @(
     "HumanResources"
@@ -6,7 +7,6 @@ $OUs = @(
     "Sales"
     "Training"
 )
-
 foreach ($OU in $OUs) {
     $ExistingOU =  Get-ADOrganizationalUnit -Filter "Name -eq '$OU'"
         if ($ExistingOU -eq $null) {
@@ -16,7 +16,7 @@ foreach ($OU in $OUs) {
             Write-Host "OU already exists: $OU"
         }
 }
-
+#Create New Groups
 $Groups = @(
     @{ Name = "HR-Users"; OU = "HumanResources" }
     @{ Name = "IT-Admins"; OU = "IT" }
@@ -24,7 +24,6 @@ $Groups = @(
     @{ Name = "Sales-Team"; OU = "Sales" }
     @{ Name = "Training-Security"; OU = "Training" }
 )
-
 foreach ($Group in $Groups) {
     $ExistingGroup = Get-ADGroup -Filter "Name -eq '$($Group.Name)'"
     $GroupPath = "OU=$($Group.OU),$DomainDN"
@@ -35,7 +34,7 @@ foreach ($Group in $Groups) {
             Write-Host "The Group already exists: $($Group.Name)"
         }
 }
-
+#Create Bulk Users
 $Users = @(
     @{ Name = "Cole Quinn"; Sam = "cquinn"; OU = "IT"}
     @{ Name = "Christian McGhee"; Sam = "cmcghee"; OU = "IT"}
@@ -62,9 +61,35 @@ $Users = @(
     @{ Name = "Sarah Chase"; Sam = "schase"; OU = "Training"}
     @{ Name = "Michael Robinson"; Sam = "mrobinson"; OU = "Training"}
 )
-
 foreach ($User in $Users) {
     $UserPath = "OU=$($User.OU),$DomainDN"
     $Password = ConvertTo-SecureString "Pa55w.rd" -AsPlainText -Force
-    New-ADUser -Name $($User.Name) -SamAccountName $($Sam.Name) -UserPrincipalName
+    $UPN = "$($User.Sam)@adatum.com"
+    New-ADUser `
+    -Name $($User.Name) `
+    -SamAccountName $($User.Sam) `
+    -UserPrincipalName $UPN `
+    -Path $UserPath `
+    -AccountPassword $Password `
+    -Enabled $true
+    Write-Host "New User created: $($User.Name) ($($User.Sam)) in OU $($User.OU)"
+}
+#Add Existing Users into Existing Groups
+$GroupMap = @{
+    "IT" = "IT-Admins"
+    "HumanResources" = "HR-Users"
+    "Finance" = "Finance-Analysts"
+    "Sales" = "Sales-Team"
+    "Training" = "Training-Security"
+}
+ForEach ($User in $Users) {
+    $GroupName = $GroupMap[$User.OU]
+    $ExistingGroup = Get-ADGroup -Filter "Name -eq '$GroupName'"
+        if ($ExistingGroup) {
+        Add-ADGroupMember -Identity $GroupName -Members $User.Sam
+        Write-Host "$($User.Sam) has been added to: $GroupName"
+        } 
+        else {
+        Write-Host "Could not complete this action." -ForegroundColor Red
+    }
 }
