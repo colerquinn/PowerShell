@@ -26,12 +26,13 @@ $Groups = @(
 )
 
 foreach ($Group in $Groups) {
-    $ExistingGroup = Get-ADGroup -Filter "Name -eq $Group"
+    $ExistingGroup = Get-ADGroup -Filter "Name -eq '$($Group.Name)'"
     $GroupPath = "OU=$($Group.OU),$DomainDN"
         if ($ExistingGroup -eq $null) {
-            New-ADGroup -Name $Group -GroupScope Global -GroupCategory Security -Path $GroupPath
-            Write-Host "New Global Security Group has been created with the name: $Group"
+            New-ADGroup -Name $($Group.Name) -GroupScope Global -GroupCategory Security -Path $GroupPath
+            Write-Host "New Global Security Group has been created with the name: $($Group.Name)"
         } else {
-            Write-Host "The Group already exists: $Group"
+            Write-Host "The Group already exists: $($Group.Name)"
         }
 }
+
