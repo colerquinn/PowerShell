@@ -93,3 +93,14 @@ ForEach ($User in $Users) {
         Write-Host "Could not complete this action." -ForegroundColor Red
     }
 }
+#Get Disabled Users and Enable Them
+$DisabledUsers = Get-ADUser -Filter 'Enabled -eq $false'
+ForEach ($User in $DisabledUsers) {
+    try {
+        Enable-ADAccount -Identity $User.SamAccountName
+        Write-Host "User Enabled: $($User.SamAccountName)"
+    }
+    catch {
+        Write-Host "Failed to Enable User: $($User.SamAccountName)"
+    }
+}
