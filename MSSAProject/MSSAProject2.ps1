@@ -10,6 +10,7 @@ catch {
 }
 
 #Retrieve Network Adapter Properties for Remote Computers
+$Computer = Read-Host "Enter the Remote Computer Name"
 try {
     $Adapters = Get-CimInstance -ClassName Win32_NetworkAdapterConfiguration`
     -Filter "IPEnabled = TRUE" -ComputerName $Computer -ErrorAction Stop
@@ -29,6 +30,7 @@ try {
 }
 
 #Release and Renew DHCP Leases on Adapters
+$Computer = Read-Host "Enter the Remote Computer Name"
 try { 
     $Adapters = Get-CimInstance -ClassName Win32_NetworkAdapterConfiguration`
     -Filter "IPEnabled = TRUE AND DHCPEnabled = TRUE"`
