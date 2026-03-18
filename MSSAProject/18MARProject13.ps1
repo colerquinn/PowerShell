@@ -9,7 +9,7 @@ foreach ($Share in $Shares) {
     foreach ($Permission in $Permissions) {
         Write-Host "$($Permission.AccountName): $($Permission.AccessControlType) ($($Permission.AccessRights))" -ForegroundColor DarkYellow
     }
-    Write-Host "----------------------------------------------------" -ForegroundColor White
+    Write-Host "====================================================" -ForegroundColor White
 }
 #This script checks to see what shared folders exist and where they exist, as well
 #as the description of what kind of file it is. This also allows Administrators to

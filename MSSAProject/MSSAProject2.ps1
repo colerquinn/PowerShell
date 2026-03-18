@@ -48,4 +48,25 @@ try {
         Write-Host "Action Failed on $Computer" -ForegroundColor Red
 }
 
-#
+#Create a Network Share
+$FolderPath = "C:\ColesMSSAData"
+$ShareName = "MSSAShare1"
+if (-not(Test-Path $FolderPath)) {
+    New-Item -Path $FolderPath -ItemType Directory
+    Write-Host "Successfully created new directory at: $FolderPath" -ForegroundColor Green
+} 
+else {
+    Write-Host "Folder Already Exists: $Folderpath" -ForegroundColor DarkYellow
+}
+if (-not(Get-SMBShare -Name $ShareName -ErrorAction SilentlyContinue)) {
+    New-SmbShare `
+        -Name $ShareName `
+        -Path $FolderPath `
+        -FullAccess "Administrators" `
+        -ReadAccess "Everyone"
+
+    Write-Host "'$ShareName' has been created on the network." -ForegroundColor Green
+}
+else {
+    Write-Host "The Share '$ShareName' is already in use." -ForegroundColor DarkYellow
+}
