@@ -70,3 +70,47 @@ if (-not(Get-SMBShare -Name $ShareName -ErrorAction SilentlyContinue)) {
 else {
     Write-Host "The Share '$ShareName' is already in use." -ForegroundColor DarkYellow
 }
+
+#Stop and start process on remote host
+$Computer = Read-Host "Enter the Remote Computer Name"
+$ProcessName = Read-Host "Enter the Process Name"
+
+Invoke-Command -ComputerName $Computer -ScriptBlock {
+    $CurrentProcess = Get-Process -Name $using:ProcessName -ErrorAction SilentlyContinue
+
+    if ($CurrentProcess) {
+        Write-Host "Stopping Process..." -ForegroundColor DarkYellow
+        Stop-Process -Name $using:ProcessName -Force
+
+        Start-Sleep -Seconds 1
+
+        Write-Host "Starting Process..." -ForegroundColor DarkYellow
+        Start-Process $using:ProcessName
+
+        Write-host "Process $Using:ProcessName successfully started!" -ForegroundColor Green
+    } else {
+        Write-Host "Process $Using:ProcessName not found running this device" -ForegroundColor Red
+    }
+}
+
+#Stop and start service on remote host
+$Computer = Read-Host "Enter the Remote Computer Name"
+$ServiceName = Read-Host "Enter the Service Name"
+
+Invoke-Command -ComputerName $Computer -ScriptBlock {
+    $CurrentService = Get-Service -Name $using:ServiceName -ErrorAction SilentlyContinue
+
+    if ($CurrentService) {
+        Write-Host "Stopping Service..." -ForegroundColor DarkYellow
+        Stop-Service -Name $using:ServiceName -Force
+
+        Start-Sleep -Seconds 1
+
+        Write-Host "Starting Service..." -ForegroundColor DarkYellow
+        Start-Service $using:ServiceName
+
+        Write-host "Service $Using:ServiceName successfully restarted!" -ForegroundColor Green
+    } else {
+        Write-Host "Service $Using:ServiceName not found running this device" -ForegroundColor Red
+    }
+}
